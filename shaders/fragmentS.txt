@@ -8,7 +8,7 @@ uniform float time;
 uniform vec2 resolution;
 uniform vec2 cursorPos;
 
-#define MAX_ITERATIONS 250
+#define MAX_ITERATIONS 60
 #define eR 1.0
 #define zoom 3.0
 
@@ -40,34 +40,13 @@ float juliaCalc(vec2 coordinate, vec2 cursorPos)
 	return calc(z, c);
 }
 
-vec2 coordScale(vec4 coord)
-{
-	vec2 relativePos = vec2(coord.xy / resolution.xy);
-	vec2 actualPos   = (relativePos - 0.5) * zoom;
-
-	float aspectRatio = resolution.x / resolution.y;
-	actualPos.x *= aspectRatio;
-
-	return actualPos;
-}
-
-
 void main()
 {
-	vec2 coord			 = coordScale(gl_FragCoord);
-	vec2 actualCursorPos = coordScale(vec4(cursorPos, 0.0, 0.0));
+	vec2 coord           = 1.5 * (2.0 * gl_FragCoord.xy - resolution.xy) / resolution.y;
+	vec2 actualCursorPos = (2.0 * cursorPos.xy - resolution.xy) / resolution.y;
 
-	vec2 c = vec2(-1.0, 0.5); // cool location
-
-	c.x *= cos(0.2 * time);
-	c.y *= sin(0.2 * time);
-
-
-	float juliaValue     = juliaCalc(coord, c);
-
-	//vec3 color = vec3(0.5, 0.0, 0.0);
-	//color += vec3(0.5 * cos(juliaValue * 6.2832 * 1.0 + vec3(0.0, 0.0, 0.0)));
+	float juliaValue = juliaCalc(coord, actualCursorPos);
 	
-	vec3 color = vec3(cos(3.0 + (juliaValue)* 25.0 + 0.0), 1.0 * cos(2.8 + (juliaValue) * 10.0 + 0.0), cos(3.0 + (juliaValue) * 25.0 + 1.0));
+	vec3 color = vec3(cos(3.0 + (juliaValue)* 25.0 + 0.0), 1.0 * cos(2.8 + (juliaValue) * 10.0 + 0.0), cos(3.0 + (juliaValue) * 25.0 * time + 1.0));
 	fragColor = vec4(color, 1.0);
 }
